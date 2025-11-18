@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faqtum | The Marketplace for European SMEs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Flippa-style font pairing */
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; color: #1f2937; }
+        h1, h2, h3, h4, .price-tag { font-family: 'Heebo', sans-serif; }
+
+        /* Utility for the blurred "Lock" effect */
+        .blur-data { filter: blur(6px); user-select: none; pointer-events: none; }
+        .lock-overlay {
+            position: absolute; inset: 0;
+            background: rgba(255, 255, 255, 0.6);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 10; backdrop-filter: blur(2px);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px;}
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+
+        /* Animations */
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .nav-item.active { border-bottom: 2px solid #10b981; color: #10b981; }
+
+        /* Graph Bar Animation */
+        .bar-fill { transition: width 1s ease-in-out; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- ================= TOP NAV (Compact) ================= -->
+    <div class="bg-slate-900 text-slate-300 text-xs py-2 px-4 flex justify-between items-center">
+        <div class="flex gap-4">
+            <span><i class="fas fa-chart-line mr-1"></i> 25,402 Companies Analyzed</span>
+            <span><i class="fas fa-briefcase mr-1"></i> 1,204 Active Listings</span>
+        </div>
+        <div class="flex gap-4">
+            <a href="#" class="hover:text-white">Support</a>
+            <a href="#" class="hover:text-white">ES / EN / FR</a>
+        </div>
+    </div>
+
+    <!-- ================= MAIN HEADER (Sticky) ================= -->
+    <header class="bg-white shadow-sm sticky top-0 z-50 border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between gap-6">
+            <!-- Logo -->
+            <div class="flex items-center gap-2 cursor-pointer" onclick="showPage('home')">
+                <div class="bg-emerald-500 text-white p-2 rounded-lg font-black text-xl tracking-tighter leading-none">F</div>
+                <span class="text-2xl font-black tracking-tight text-slate-900">FAQTUM</span>
+            </div>
+
+            <!-- Central Search (Flippa Style) -->
+            <div class="hidden md:flex flex-grow max-w-2xl relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-search text-slate-400"></i>
+                </div>
+                <input type="text" class="block w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-l-lg leading-5 bg-slate-50 placeholder-slate-500 focus:outline-none focus:bg-white focus:ring-2 focus:ring-emerald-500 sm:text-sm" placeholder="Search for businesses, assets, or domains...">
+                <button class="bg-emerald-600 text-white px-6 py-2 rounded-r-lg font-bold hover:bg-emerald-700 text-sm uppercase tracking-wide">Search</button>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center gap-4 flex-shrink-0">
+                <button onclick="showPage('snapshot')" class="hidden lg:block text-slate-600 font-semibold text-sm hover:text-emerald-600">Get Valuation</button>
+                <button onclick="showPage('marketplace')" class="hidden lg:block text-slate-600 font-semibold text-sm hover:text-emerald-600">Browse Listings</button>
+                <div class="h-6 w-px bg-slate-300 hidden lg:block"></div>
+                <button class="text-slate-600 font-medium text-sm hover:text-slate-900">Log In</button>
+                <button class="bg-slate-900 text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow hover:bg-slate-800 transition">Sell Now</button>
+            </div>
+        </div>
+
+        <!-- Sub-Nav (Categories) -->
+        <div class="bg-white border-b border-slate-200 hidden md:block">
+            <div class="max-w-7xl mx-auto px-4 overflow-x-auto">
+                <nav class="flex space-x-8 text-sm font-medium text-slate-600 whitespace-nowrap py-3">
+                    <a href="#" class="text-emerald-600 border-b-2 border-emerald-600 pb-3 -mb-3.5">All Assets</a>
+                    <a href="#" class="hover:text-slate-900 pb-3">SaaS & Software</a>
+                    <a href="#" class="hover:text-slate-900 pb-3">E-Commerce</a>
+                    <a href="#" class="hover:text-slate-900 pb-3">Manufacturing</a>
+                    <a href="#" class="hover:text-slate-900 pb-3">Agencies</a>
+                    <a href="#" class="hover:text-slate-900 pb-3">Logistics</a>
+                    <a href="#" class="hover:text-slate-900 pb-3 text-orange-600"><i class="fas fa-fire mr-1"></i>Under Valued</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- ================= CONTENT AREA ================= -->
+    <main id="main-content" class="flex-grow">
+
+        <!-- PAGE: HOME -->
+        <div id="home" class="fade-in">
+            <!-- Hero Banner -->
+            <section class="relative bg-slate-900 text-white overflow-hidden">
+                <div class="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
+                <div class="max-w-7xl mx-auto px-4 py-20 relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
+                    <div class="md:w-1/2">
+                        <h1 class="text-4xl md:text-6xl font-black mb-6 leading-tight">Buy & Sell <br><span class="text-emerald-400">Profitable Businesses.</span></h1>
+                        <p class="text-lg text-slate-300 mb-8 font-light">The #1 marketplace for buying and selling European SMEs, SaaS, and digital assets. Valuations powered by real-time data.</p>
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <button onclick="showPage('marketplace')" class="bg-emerald-500 text-white px-8 py-4 rounded-lg font-bold text-lg shadow-lg shadow-emerald-500/30 hover:bg-emerald-600 transition">
+                                Browse 1,200+ Assets
+                            </button>
+                            <button onclick="showPage('snapshot')" class="bg-white text-slate-900 px-8 py-4 rounded-lg font-bold text-lg hover:bg-slate-100 transition border border-slate-200">
+                                Value My Business
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Hero Stats Card -->
+                    <div class="md:w-1/3 w-full">
+                        <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 text-white">
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-sm font-semibold uppercase tracking-wider text-emerald-300">Just Sold</span>
+                                <span class="bg-emerald-500 text-xs font-bold px-2 py-1 rounded">Sold for €2.4M</span>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2">Logistics Fleet S.L.</h3>
+                            <p class="text-sm text-slate-300 mb-4">Madrid, Spain • Transport</p>
+                            <div class="grid grid-cols-2 gap-4 text-sm mb-4">
+                                <div>
+                                    <span class="block text-slate-400 text-xs">Net Profit</span>
+                                    <span class="font-bold text-lg">€450k</span>
+                                </div>
+                                <div>
+                                    <span class="block text-slate-400 text-xs">Multiple</span>
+                                    <span class="font-bold text-lg">5.3x</span>
+                                </div>
+                            </div>
+                            <div class="h-2 bg-white/20 rounded-full overflow-hidden">
+                                <div class="h-full bg-emerald-400 w-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Editors Choice / Sponsored Grid -->
+            <section class="py-12 max-w-7xl mx-auto px-4">
+                <div class="flex justify-between items-end mb-6">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-900">Editor's Choice</h2>
+                        <p class="text-slate-500">Hand-picked profitable businesses ready for exit.</p>
+                    </div>
+                    <a href="#" onclick="showPage('marketplace')" class="text-emerald-600 font-bold hover:underline">View all</a>
+                </div>
+
+                <!-- Listing Grid (Flippa Style Cards) -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                    <!-- Card 1 -->
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-xl transition-shadow duration-300 group cursor-pointer">
+                        <div class="relative h-48 bg-slate-100 overflow-hidden rounded-t-xl border-b border-slate-100">
+                            <!-- Image Placeholder -->
+                            <div class="absolute inset-0 flex items-center justify-center text-slate-300 group-hover:scale-105 transition-transform duration-500">
+                                <i class="fas fa-industry text-6xl"></i>
+                            </div>
+                            <span class="absolute top-3 left-3 bg-white/90 backdrop-blur text-xs font-bold px-2 py-1 rounded shadow-sm">
+                                <i class="fas fa-check-circle text-blue-500 mr-1"></i> Verified
+                            </span>
+                            <button class="absolute top-3 right-3 text-slate-400 hover:text-red-500 bg-white p-1.5 rounded-full shadow-sm">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-lg font-bold text-slate-900 line-clamp-1 group-hover:text-emerald-600 transition-colors">CNC Manufacturing Plant</h3>
+                            </div>
+                            <p class="text-xs text-slate-500 mb-4 line-clamp-2">Established B2B metal fabrication provider with long-term contracts in automotive.</p>
+
+                            <!-- Mini Data Grid -->
+                            <div class="grid grid-cols-3 gap-2 border-t border-b border-slate-100 py-3 mb-4">
+                                <div>
+                                    <div class="text-xs text-slate-400 uppercase">Profit/yr</div>
+                                    <div class="text-sm font-bold text-slate-900">€420k</div>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-slate-400 uppercase">Rev/yr</div>
+                                    <div class="text-sm font-bold text-slate-900">€2.1M</div>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-slate-400 uppercase">Age</div>
+                                    <div class="text-sm font-bold text-slate-900">12 Yrs</div>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="text-xs text-slate-400">Asking Price</div>
+                                    <div class="text-xl font-bold text-emerald-600 price-tag">€1,850,000</div>
+                                </div>
+                                <span class="bg-slate-100 text-slate-600 text-xs font-medium px-2 py-1 rounded">Spain</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 2 -->
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-xl transition-shadow duration-300 group cursor-pointer">
+                        <div class="relative h-48 bg-slate-100 overflow-hidden rounded-t-xl border-b border-slate-100">
+                             <div class="absolute inset-0 flex items-center justify-center text-slate-300 group-hover:scale-105 transition-transform duration-500">
+                                <i class="fas fa-cloud text-6xl"></i>
+                            </div>
+                            <span class="absolute top-3 left-3 bg-emerald-100 text-emerald-800 text-xs font-bold px-2 py-1 rounded shadow-sm">
+                                High Growth
+                            </span>
+                             <button class="absolute top-3 right-3 text-slate-400 hover:text-red-500 bg-white p-1.5 rounded-full shadow-sm">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-lg font-bold text-slate-900 line-clamp-1 group-hover:text-emerald-600 transition-colors">HR SaaS Platform (B2B)</h3>
+                            </div>
+                            <p class="text-xs text-slate-500 mb-4 line-clamp-2">Subscription based HR tool for mid-sized companies. 95% retention rate.</p>
+
+                            <div class="grid grid-cols-3 gap-2 border-t border-b border-slate-100 py-3 mb-4">
+                                <div>
+                                    <div class="text-xs text-slate-400 uppercase">Profit/yr</div>
+                                    <div class="text-sm font-bold text-slate-900">€150k</div>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-slate-400 uppercase">Rev/yr</div>
+                                    <div class="text-sm font-bold text-slate-900">€400k</div>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-slate-400 uppercase">Age</div>
+                                    <div class="text-sm font-bold text-slate-900">3 Yrs</div>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="text-xs text-slate-400">Asking Price</div>
+                                    <div class="text-xl font-bold text-emerald-600 price-tag">€850,000</div>
+                                </div>
+                                <span class="bg-slate-100 text-slate-600 text-xs font-medium px-2 py-1 rounded">NL</span>
+                            </div>
+                        </div>
+                    </div>
+
+                     <!-- Card 3 -->
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-xl transition-shadow duration-300 group cursor-pointer">
+                        <div class="relative h-48 bg-slate-100 overflow-hidden rounded-t-xl border-b border-slate-100">
+                             <div class="absolute inset-0 flex items-center justify-center text-slate-300 group-hover:scale-105 transition-transform duration-500">
+                                <i class="fas fa-shopping-cart text-6xl"></i>
+                            </div>
+                             <button class="absolute top-3 right-3 text-slate-400 hover:text-red-500 bg-white p-1.5 rounded-full shadow-sm">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                        <div class="p-5">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="text-lg font-bold text-slate-900 line-clamp-1 group-hover:text-emerald-600 transition-colors">E-Commerce Pet Supplies</h3>
+                            </div>
+                            <p class="text-xs text-slate-500 mb-4 line-clamp-2">Dropshipping model with own brand. High margins, fully automated.</p>
+
+                            <div class="grid grid-cols-3 gap-2 border-t border-b border-slate-100 py-3 mb-4">
+                                <div>
+                                    <div class="text-xs text-slate-400 uppercase">Profit/yr</div>
+                                    <div class="text-sm font-bold text-slate-900">€85k</div>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-slate-400 uppercase">Rev/yr</div>
+                                    <div class="text-sm font-bold text-slate-900">€300k</div>
+                                </div>
+                                <div>
+                                    <div class="text-xs text-slate-400 uppercase">Age</div>
+                                    <div class="text-sm font-bold text-slate-900">2 Yrs</div>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="text-xs text-slate-400">Asking Price</div>
+                                    <div class="text-xl font-bold text-emerald-600 price-tag">€220,000</div>
+                                </div>
+                                <span class="bg-slate-100 text-slate-600 text-xs font-medium px-2 py-1 rounded">UK</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- Value Prop Band -->
+            <section class="bg-white border-y border-slate-200 py-12">
+                <div class="max-w-7xl mx-auto px-4">
+                    <h2 class="text-center text-2xl font-bold mb-10">Why use Faqtum to sell your business?</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="flex gap-4">
+                            <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 flex-shrink-0">
+                                <i class="fas fa-calculator text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg">Accurate Valuation</h3>
+                                <p class="text-slate-500 text-sm leading-relaxed">Don't guess. Use our data from 25M companies to price your asset correctly.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 flex-shrink-0">
+                                <i class="fas fa-users text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg">Qualified Buyers</h3>
+                                <p class="text-slate-500 text-sm leading-relaxed">Our network includes verified investors, private equity, and acquisition firms.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 flex-shrink-0">
+                                <i class="fas fa-shield-alt text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg">Secure & Private</h3>
+                                <p class="text-slate-500 text-sm leading-relaxed">Control who sees your data. NDAs integrated directly into the platform flow.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- PAGE: SNAPSHOT (Valuation Dashboard) -->
+        <div id="snapshot" class="hidden fade-in">
+            <!-- Top Search for Valuation -->
+            <div class="bg-slate-900 py-10 text-center">
+                <h2 class="text-white text-3xl font-bold mb-2">What is it worth?</h2>
+                <p class="text-slate-400 mb-6">Enter a Registration Number to get an instant estimate.</p>
+                <div class="max-w-2xl mx-auto px-4 flex gap-2">
+                    <input type="text" value="B-12345678 (Example)" class="flex-grow p-4 rounded-lg text-slate-900 outline-none" id="valInput">
+                    <button onclick="startValuation()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-8 rounded-lg font-bold">
+                        <i class="fas fa-sync-alt mr-2" id="loadingIcon"></i> Analyze
+                    </button>
+                </div>
+            </div>
+
+            <div class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+                <!-- Left Column: Free Data -->
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <div class="flex justify-between items-start mb-6 border-b border-slate-100 pb-4">
+                            <div>
+                                <h1 class="text-2xl font-bold text-slate-900">TechSolutions S.L.</h1>
+                                <div class="flex items-center gap-3 mt-1 text-sm text-slate-500">
+                                    <span><i class="fas fa-map-marker-alt text-slate-400"></i> Madrid, ES</span>
+                                    <span><i class="fas fa-tag text-slate-400"></i> IT Services (6201)</span>
+                                    <span><i class="far fa-clock text-slate-400"></i> Est. 2015</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="inline-block bg-emerald-50 border border-emerald-100 text-emerald-700 px-3 py-1 rounded text-sm font-bold mb-1">
+                                    Profitable
+                                </div>
+                                <div class="text-xs text-slate-400">Last Accounts: 2023</div>
+                            </div>
+                        </div>
+
+                        <!-- Health Score Gauge (Simulated) -->
+                        <div class="mb-8">
+                            <h3 class="font-bold text-sm uppercase text-slate-400 mb-3">Business Health Score</h3>
+                            <div class="h-4 w-full bg-slate-100 rounded-full overflow-hidden flex">
+                                <div class="h-full bg-red-400 w-[20%]"></div>
+                                <div class="h-full bg-yellow-400 w-[30%]"></div>
+                                <div class="h-full bg-emerald-500 w-[50%] relative">
+                                    <!-- Marker -->
+                                    <div class="absolute right-[20%] top-0 bottom-0 w-1 bg-black"></div>
+                                </div>
+                            </div>
+                            <div class="flex justify-between text-xs text-slate-400 mt-2">
+                                <span>Risky</span>
+                                <span>Average</span>
+                                <span class="font-bold text-emerald-600">Excellent (7.8/10)</span>
+                            </div>
+                        </div>
+
+                        <!-- Revenue Graph -->
+                        <div>
+                            <h3 class="font-bold text-sm uppercase text-slate-400 mb-3">Revenue Trajectory (Est.)</h3>
+                            <div class="flex items-end gap-4 h-32 border-b border-l border-slate-200 p-2">
+                                <div class="w-1/5 bg-blue-200 rounded-t h-[40%] relative group">
+                                    <span class="absolute -top-6 left-1/2 -translate-x-1/2 text-xs font-bold text-slate-500 opacity-0 group-hover:opacity-100">2020</span>
+                                </div>
+                                <div class="w-1/5 bg-blue-300 rounded-t h-[55%] relative group">
+                                    <span class="absolute -top-6 left-1/2 -translate-x-1/2 text-xs font-bold text-slate-500 opacity-0 group-hover:opacity-100">2021</span>
+                                </div>
+                                <div class="w-1/5 bg-blue-400 rounded-t h-[65%] relative group">
+                                    <span class="absolute -top-6 left-1/2 -translate-x-1/2 text-xs font-bold text-slate-500 opacity-0 group-hover:opacity-100">2022</span>
+                                </div>
+                                <div class="w-1/5 bg-blue-500 rounded-t h-[85%] relative group">
+                                    <span class="absolute -top-6 left-1/2 -translate-x-1/2 text-xs font-bold text-slate-500 opacity-0 group-hover:opacity-100">2023</span>
+                                </div>
+                                <div class="w-1/5 bg-emerald-500 rounded-t h-[95%] relative group">
+                                    <span class="absolute -top-6 left-1/2 -translate-x-1/2 text-xs font-bold text-emerald-600">2024</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Blurred Premium Data -->
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-bold">Financial Benchmarking</h3>
+                            <span class="text-sm text-slate-400">Sector: IT Services Spain</span>
+                        </div>
+
+                        <div class="space-y-4 blur-data">
+                            <div class="flex justify-between border-b pb-2">
+                                <span>EBITDA Margin</span>
+                                <span class="font-bold">18.5%</span>
+                            </div>
+                            <div class="flex justify-between border-b pb-2">
+                                <span>Personnel Costs / Rev</span>
+                                <span class="font-bold">42%</span>
+                            </div>
+                             <div class="flex justify-between border-b pb-2">
+                                <span>Liquidity Ratio</span>
+                                <span class="font-bold">1.2</span>
+                            </div>
+                             <div class="flex justify-between">
+                                <span>Est. Enterprise Value</span>
+                                <span class="font-bold text-emerald-600">€3.2M - €3.8M</span>
+                            </div>
+                        </div>
+
+                        <!-- Lock Overlay -->
+                        <div class="lock-overlay">
+                            <div class="bg-white p-6 rounded-xl shadow-2xl text-center max-w-sm border border-slate-100">
+                                <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                                    <i class="fas fa-lock text-xl"></i>
+                                </div>
+                                <h4 class="font-bold text-lg mb-2">Unlock Premium Metrics</h4>
+                                <p class="text-sm text-slate-500 mb-4">Get the full 20-page valuation report including EBITDA multiples, 5-year projections, and bank-ready certification.</p>
+                                <button class="w-full bg-slate-900 text-white py-3 rounded font-bold hover:bg-slate-800">
+                                    Get Full Report (€300)
+                                </button>
+                                <p class="text-xs text-slate-400 mt-3">Delivered in 48 hours</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Action -->
+                <div>
+                    <div class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-emerald-500 sticky top-24">
+                        <h3 class="font-bold text-xl mb-1 text-slate-900">Valuation Estimate</h3>
+                        <div class="text-3xl font-black text-emerald-600 mb-1">€2.8M - €3.4M</div>
+                        <p class="text-xs text-slate-400 mb-6">Preliminary automated estimate based on 2023 public accounts.</p>
+
+                        <div class="space-y-3">
+                            <button class="w-full bg-emerald-600 text-white py-3 rounded-lg font-bold shadow-md hover:bg-emerald-700 transition flex items-center justify-center gap-2">
+                                <i class="fas fa-file-pdf"></i> Order Full Report
+                            </button>
+                            <button class="w-full bg-white border-2 border-slate-200 text-slate-700 py-3 rounded-lg font-bold hover:border-emerald-500 hover:text-emerald-600 transition flex items-center justify-center gap-2">
+                                <i class="fas fa-bullhorn"></i> List This Company
+                            </button>
+                        </div>
+
+                        <div class="mt-6 pt-6 border-t border-slate-100">
+                            <h4 class="text-xs font-bold uppercase text-slate-400 mb-3">Why verify?</h4>
+                            <ul class="text-sm text-slate-600 space-y-2">
+                                <li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-1"></i> Increase sale price by 20%</li>
+                                <li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-1"></i> Attract serious investors</li>
+                                <li class="flex items-start gap-2"><i class="fas fa-check text-green-500 mt-1"></i> Get legal documentation</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE: MARKETPLACE (All Listings) -->
+        <div id="marketplace" class="hidden fade-in bg-white">
+             <div class="max-w-7xl mx-auto px-4 py-8 flex flex-col md:flex-row gap-8">
+                <!-- Sidebar Filters -->
+                <aside class="w-full md:w-64 flex-shrink-0">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="font-bold text-xl">Filters</h2>
+                        <span class="text-xs text-blue-600 cursor-pointer">Clear All</span>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div>
+                            <h4 class="text-sm font-bold mb-2">Asset Type</h4>
+                            <div class="space-y-2 text-sm text-slate-600">
+                                <label class="flex items-center"><input type="checkbox" class="mr-2" checked> SaaS / Software</label>
+                                <label class="flex items-center"><input type="checkbox" class="mr-2" checked> E-Commerce</label>
+                                <label class="flex items-center"><input type="checkbox" class="mr-2"> Content / Blog</label>
+                                <label class="flex items-center"><input type="checkbox" class="mr-2"> Agency / Service</label>
+                                <label class="flex items-center"><input type="checkbox" class="mr-2"> Brick & Mortar</label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="text-sm font-bold mb-2">Price Range</h4>
+                             <div class="flex gap-2 mb-2">
+                                <input type="text" placeholder="Min" class="w-1/2 border rounded p-1 text-sm">
+                                <input type="text" placeholder="Max" class="w-1/2 border rounded p-1 text-sm">
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="text-sm font-bold mb-2">Profit (Annual)</h4>
+                            <input type="range" class="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer">
+                            <div class="flex justify-between text-xs text-slate-500 mt-1">
+                                <span>€0</span>
+                                <span>€5M+</span>
+                            </div>
+                        </div>
+
+                         <div>
+                            <h4 class="text-sm font-bold mb-2">Location</h4>
+                            <select class="w-full border border-slate-300 rounded p-2 text-sm bg-white">
+                                <option>Any Location</option>
+                                <option>Spain</option>
+                                <option>United Kingdom</option>
+                                <option>Germany</option>
+                            </select>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Results -->
+                <div class="flex-grow">
+                    <div class="flex justify-between items-center mb-6">
+                        <span class="text-slate-500 text-sm">Showing <strong>1,204</strong> results</span>
+                        <select class="border border-slate-300 rounded p-2 text-sm bg-white">
+                            <option>Sort by: Most Relevant</option>
+                            <option>Sort by: Lowest Price</option>
+                            <option>Sort by: Highest Profit</option>
+                        </select>
+                    </div>
+
+                    <!-- List View (Dense) -->
+                    <div class="space-y-4">
+                        <!-- Item 1 -->
+                        <div class="border border-slate-200 rounded-lg p-4 flex flex-col md:flex-row gap-4 hover:border-emerald-400 hover:shadow-md transition cursor-pointer bg-white">
+                            <div class="w-full md:w-48 h-32 bg-slate-100 rounded flex items-center justify-center flex-shrink-0 text-slate-300">
+                                <i class="fas fa-box text-3xl"></i>
+                            </div>
+                            <div class="flex-grow">
+                                <div class="flex justify-between">
+                                    <h3 class="font-bold text-lg text-slate-900 hover:text-emerald-600">Amazon FBA Brand - Home Decor</h3>
+                                    <span class="font-bold text-emerald-600 text-xl">€450,000</span>
+                                </div>
+                                <p class="text-sm text-slate-500 mb-3 line-clamp-2">5-year old brand with trademark. Selling in ES, FR, DE. Fully automated logistics via 3PL. 25% Net Margin.</p>
+                                <div class="flex gap-6 text-sm">
+                                    <div><span class="text-slate-400 block text-xs">Profit/mo</span> <span class="font-bold">€12,500</span></div>
+                                    <div><span class="text-slate-400 block text-xs">Revenue/mo</span> <span class="font-bold">€45,000</span></div>
+                                    <div><span class="text-slate-400 block text-xs">Multiple</span> <span class="font-bold">3.0x</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Item 2 -->
+                        <div class="border border-slate-200 rounded-lg p-4 flex flex-col md:flex-row gap-4 hover:border-emerald-400 hover:shadow-md transition cursor-pointer bg-white">
+                            <div class="w-full md:w-48 h-32 bg-slate-100 rounded flex items-center justify-center flex-shrink-0 text-slate-300">
+                                <i class="fas fa-server text-3xl"></i>
+                            </div>
+                            <div class="flex-grow">
+                                <div class="flex justify-between">
+                                    <h3 class="font-bold text-lg text-slate-900 hover:text-emerald-600">Managed Hosting Provider</h3>
+                                    <span class="font-bold text-emerald-600 text-xl">€1,200,000</span>
+                                </div>
+                                <p class="text-sm text-slate-500 mb-3 line-clamp-2">Hosting 500+ SME clients in Catalonia. recurring revenue model. Very low churn.</p>
+                                <div class="flex gap-6 text-sm">
+                                    <div><span class="text-slate-400 block text-xs">Profit/mo</span> <span class="font-bold">€28,000</span></div>
+                                    <div><span class="text-slate-400 block text-xs">Revenue/mo</span> <span class="font-bold">€65,000</span></div>
+                                    <div><span class="text-slate-400 block text-xs">Multiple</span> <span class="font-bold">3.5x</span></div>
+                                </div>
+                            </div>
+                        </div>
+                         <!-- Item 3 -->
+                        <div class="border border-slate-200 rounded-lg p-4 flex flex-col md:flex-row gap-4 hover:border-emerald-400 hover:shadow-md transition cursor-pointer bg-white">
+                            <div class="w-full md:w-48 h-32 bg-slate-100 rounded flex items-center justify-center flex-shrink-0 text-slate-300">
+                                <i class="fas fa-mobile-alt text-3xl"></i>
+                            </div>
+                            <div class="flex-grow">
+                                <div class="flex justify-between">
+                                    <h3 class="font-bold text-lg text-slate-900 hover:text-emerald-600">Mobile App - Fitness Tracker</h3>
+                                    <span class="font-bold text-emerald-600 text-xl">€85,000</span>
+                                </div>
+                                <p class="text-sm text-slate-500 mb-3 line-clamp-2">iOS/Android. 50k downloads. Monetized via ads and premium sub. Codebase included.</p>
+                                <div class="flex gap-6 text-sm">
+                                    <div><span class="text-slate-400 block text-xs">Profit/mo</span> <span class="font-bold">€2,100</span></div>
+                                    <div><span class="text-slate-400 block text-xs">Revenue/mo</span> <span class="font-bold">€3,500</span></div>
+                                    <div><span class="text-slate-400 block text-xs">Multiple</span> <span class="font-bold">3.3x</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="w-full py-3 bg-slate-100 text-slate-600 font-bold rounded mt-6 hover:bg-slate-200">Load More Listings</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ================= FOOTER ================= -->
+    <footer class="bg-slate-900 text-slate-400 py-12 border-t border-slate-800 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-5 gap-8 text-sm">
+            <div class="col-span-2">
+                <h3 class="text-white font-black text-2xl mb-4">FAQTUM.</h3>
+                <p class="mb-4 max-w-xs">The leading marketplace for buying and selling European businesses. Secure, data-driven, and transparent.</p>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-4 uppercase tracking-wider text-xs">Buy</h4>
+                <ul class="space-y-2">
+                    <li><a href="#" class="hover:text-white">Websites for Sale</a></li>
+                    <li><a href="#" class="hover:text-white">SaaS for Sale</a></li>
+                    <li><a href="#" class="hover:text-white">eCommerce</a></li>
+                    <li><a href="#" class="hover:text-white">First-time Buyers</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-4 uppercase tracking-wider text-xs">Sell</h4>
+                <ul class="space-y-2">
+                    <li><a href="#" class="hover:text-white">Value my Business</a></li>
+                    <li><a href="#" class="hover:text-white">Find a Broker</a></li>
+                    <li><a href="#" class="hover:text-white">Success Stories</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-4 uppercase tracking-wider text-xs">Company</h4>
+                <ul class="space-y-2">
+                    <li><a href="#" class="hover:text-white">About Faqtum</a></li>
+                    <li><a href="#" class="hover:text-white">Pricing</a></li>
+                    <li><a href="#" class="hover:text-white">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Logic to switch tabs -->
+    <script>
+        function showPage(pageId) {
+            document.getElementById('home').classList.add('hidden');
+            document.getElementById('snapshot').classList.add('hidden');
+            document.getElementById('marketplace').classList.add('hidden');
+
+            const active = document.getElementById(pageId);
+            active.classList.remove('hidden');
+            window.scrollTo(0,0);
+        }
+
+        function startValuation() {
+            const icon = document.getElementById('loadingIcon');
+            icon.classList.add('fa-spin');
+            setTimeout(() => {
+                icon.classList.remove('fa-spin');
+                // Just refresh the page state for effect
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
